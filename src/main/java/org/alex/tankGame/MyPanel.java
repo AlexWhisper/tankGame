@@ -6,7 +6,7 @@ import java.awt.event.KeyListener;
 import java.util.Vector;
 
 @SuppressWarnings({"all"})
-public class MyPanel extends Panel implements KeyListener {
+public class MyPanel extends Panel implements KeyListener,Runnable {
     Hero hero = null;
     Vector<EnemyTank> enemyTanks=new Vector<EnemyTank>();
     int enemySize=3;
@@ -32,7 +32,16 @@ public class MyPanel extends Panel implements KeyListener {
             drawTank(enemyTanks.get(i).getX(), enemyTanks.get(i).getY(),g, enemyTanks.get(i).getDirect(),1);
         }
 
+        if (hero.bullet!=null &&hero.bullet.isLive==true){
+            System.out.println("子弹被绘制");
+            g.fillOval(hero.bullet.getX(),hero.bullet.getY(),5,5);
+        }
+
+
+
     }
+
+
 
     public void drawTank(int x, int y, Graphics g, int direct, int type) {
         switch (type) { //根据不同类型设置不同颜色的画笔，画出不同类型坦克
@@ -88,25 +97,44 @@ public class MyPanel extends Panel implements KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         System.out.println((char)e.getKeyCode()+"键被按下");
-        if (e.getKeyCode()==KeyEvent.VK_UP){
+        if (e.getKeyCode()==KeyEvent.VK_W){
             hero.setDirect(0);
             hero.moveUp();
-        } else if (e.getKeyCode()==KeyEvent.VK_DOWN) {
+        } else if (e.getKeyCode()==KeyEvent.VK_S) {
             hero.setDirect(2);
             hero.moveDown();
-        }else if (e.getKeyCode()==KeyEvent.VK_LEFT) {
+        }else if (e.getKeyCode()==KeyEvent.VK_A) {
             hero.setDirect(3);
             hero.moveLeft();
-        }else if (e.getKeyCode()==KeyEvent.VK_RIGHT) {
+        }else if (e.getKeyCode()==KeyEvent.VK_D) {
             hero.setDirect(1);
             hero.moveRight();
+        }
+
+        if (e.getKeyCode()==KeyEvent.VK_J){
+            System.out.println("用户按下了J，开始射击");
+            hero.shotEnemy();
+
         }
 
         repaint();
     }
 
+
     @Override
     public void keyReleased(KeyEvent e) {
 
     }
+
+    @Override
+    public void run() {
+        while(true){
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        this.repaint();
+    }}
 }

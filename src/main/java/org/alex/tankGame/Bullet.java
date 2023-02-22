@@ -5,7 +5,7 @@ public class Bullet implements Runnable{
     private int y;
     private int direct;
     private int speed=10;
-     boolean isLive=true;
+    boolean isLive=true;
 
     public Bullet(int x, int y,int direct) {
         this.x = x;
@@ -49,7 +49,7 @@ public class Bullet implements Runnable{
     public void run() {
         while(true){
             try {
-                Thread.sleep(50);
+                Thread.sleep(70);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -70,10 +70,11 @@ public class Bullet implements Runnable{
             }
             System.out.println(x+" "+y);
 
-            if (!(x>0&&x<1000&&y>0&&y<750)){
+            if (!(x>0&&x<1000&&y>0&&y<750&&isLive)){
                 isLive=false;
                 break;
             }
+
         }
 
     }

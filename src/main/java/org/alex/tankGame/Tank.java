@@ -1,10 +1,12 @@
 package org.alex.tankGame;
 
-public class Tank {   //这个是tank类，游戏中所有类型的坦克都继承了tank类
+public class Tank {
+    //这个是tank类，游戏中所有类型的坦克都继承了tank类
     private int x;
     private int y;
     private int direct;
     private int speed=1;
+
 
     public int getSpeed() {
         return speed;
@@ -15,19 +17,28 @@ public class Tank {   //这个是tank类，游戏中所有类型的坦克都继�
     }
 
     public void moveUp() {
-        y-=speed;
+        if (y>0) {
+            y -= speed;
+        }
     }
 
     public void moveRight() {
-        x+=speed;
+        if (x+60<1000) {
+            x += speed;
+        }
     }
 
     public void moveDown() {
-        y+=speed;
+        if (y + 60 < 750) {
+            y += speed;
+        }
+
     }
 
     public void moveLeft() {
-        x-=speed;
+        if (x>0) {
+            x -= speed;
+        }
     }
 
     public int getDirect() {

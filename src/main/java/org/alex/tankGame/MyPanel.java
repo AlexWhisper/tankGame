@@ -9,10 +9,10 @@ import java.util.Vector;
 public class MyPanel extends Panel implements KeyListener, Runnable {
     Hero hero = null;
     Vector<EnemyTank> enemyTanks = new Vector<EnemyTank>();
-    Vector<Bomb> bombs=new Vector<>();
-    Image image1=null;
-    Image image2=null;
-    Image image3=null;
+    Vector<Bomb> bombs = new Vector<>();
+    Image image1 = null;
+    Image image2 = null;
+    Image image3 = null;
 
     int enemySize = 3;
     //定义一个空图片
@@ -23,8 +23,8 @@ public class MyPanel extends Panel implements KeyListener, Runnable {
 
     public MyPanel() {
 
-            hero = new Hero(700, 350); //创建主角坦克
-            hero.setSpeed(10);
+        hero = new Hero(700, 350); //创建主角坦克
+        hero.setSpeed(10);
 
 
         for (int i = 0; i < enemySize; i++) {//创建敌人坦克
@@ -40,13 +40,13 @@ public class MyPanel extends Panel implements KeyListener, Runnable {
         }
 
         //在构造器中初始化三张图片对象用来绘制爆炸的效果
-       image1=Toolkit.getDefaultToolkit().getImage("src/main/resources/boom2.gif");
+        image1 = Toolkit.getDefaultToolkit().getImage("src/main/resources/boom2.gif");
 //        image2=Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("/bomb_2.gif"));
 //        image3=Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("/bomb_3.gif"));
 
     }
 
-    public void hitTank(Bullet b, EnemyTank e) {
+    public void hitTank(Bullet b, Tank e) {
 
         switch (e.getDirect()) {
             case 0:
@@ -68,44 +68,25 @@ public class MyPanel extends Panel implements KeyListener, Runnable {
 
                     Bomb bomb = new Bomb(e.getX(), e.getY());
                     bombs.add(bomb);
-
-
                 }
                 break;
 
         }
 
 
+    }
 
-    }public void hitMyTank(Bullet b, Hero e) {
-
-        switch (e.getDirect()) {
-            case 0:
-            case 2:
-                if (b.getX() > e.getX() && b.getX() < e.getX() + 40 && b.getY() > e.getY() && b.getY() < e.getY() + 60) {
-                    b.isLive = false;
-                    e.isLive = false;
-
-                    Bomb bomb = new Bomb(e.getX(), e.getY());
-                    bombs.add(bomb);
-
+    public void hitHero() {
+        for (int i = 0; i < enemyTanks.size(); i++) {
+            EnemyTank enemyTank = enemyTanks.get(i);
+            for (int j = 0; j < enemyTank.bullets.size(); j++) {
+                Bullet bullet = enemyTank.bullets.get(j);
+                if (hero.isLive && bullet.isLive) {
+                    hitTank(bullet, hero);
                 }
-                break;
-            case 1:
-            case 3:
-                if (b.getX() > e.getX() && b.getX() < e.getX() + 60 && b.getY() > e.getY() && b.getY() < e.getY() + 40) {
-                    b.isLive = false;
-                    e.isLive = false;
 
-                    Bomb bomb = new Bomb(e.getX(), e.getY());
-                    bombs.add(bomb);
-
-
-                }
-                break;
-
+            }
         }
-
 
 
     }
@@ -122,33 +103,29 @@ public class MyPanel extends Panel implements KeyListener, Runnable {
         }
 
         for (int i = 0; i < hero.bullets.size(); i++) {
-            hero.bullet=hero.bullets.get(i);
+            hero.bullet = hero.bullets.get(i);
             if (hero.bullet != null && hero.bullet.isLive == true) {
                 System.out.println("子弹被绘制");
                 g.fillOval(hero.bullet.getX(), hero.bullet.getY(), 10, 10);
             }
-            if (hero.bullet.isLive==false){
+            if (hero.bullet.isLive == false) {
                 hero.bullets.remove(hero.bullet);
             }
         }
 
         for (int i = 0; i < bombs.size(); i++) {
             Bomb bomb = bombs.get(i);
-            if (bomb.life>0) {
+            if (bomb.life > 0) {
 //                g.fill3DRect(bomb.x,bomb.y,30,30,false);
-                g.drawImage(image1,bomb.x,bomb.y,100,100,this);
-            }else {
+                g.drawImage(image1, bomb.x, bomb.y, 100, 100, this);
+            } else {
                 bombs.remove(bomb);
             }
             bomb.leftDown();
         }
 
 
-
         for (int i = 0; i < enemyTanks.size(); i++) {
-            for (int j = 0; j < enemyTanks.get(i).bullets.size(); j++) {
-                hitMyTank(enemyTanks.get(i).bullets.get(j),hero);
-            }
 
             EnemyTank enemyTank = enemyTanks.get(i);
             if (enemyTank.isLive) {
@@ -157,15 +134,15 @@ public class MyPanel extends Panel implements KeyListener, Runnable {
                     Bullet bullet = enemyTank.bullets.get(j);
                     if (bullet.isLive) {
 
-                            //绘制子弹
-                            g.fill3DRect(bullet.getX(), bullet.getY(), 10, 10, false);
+                        //绘制子弹
+                        g.fill3DRect(bullet.getX(), bullet.getY(), 10, 10, false);
 
                     } else {
                         //移除子弹
                         enemyTank.bullets.remove(bullet);
                     }
                 }
-            }else{
+            } else {
                 enemyTanks.remove(enemyTank);
             }
         }
@@ -248,7 +225,7 @@ public class MyPanel extends Panel implements KeyListener, Runnable {
         if (e.getKeyCode() == KeyEvent.VK_J) {
             System.out.println("用户按下了J，开始射击");
 
-                hero.shotEnemy();
+            hero.shotEnemy();
 
 
         }
@@ -273,19 +250,24 @@ public class MyPanel extends Panel implements KeyListener, Runnable {
                 throw new RuntimeException(e);
             }
 
-            for (int j = 0; j < hero.bullets.size(); j++) {
-                hero.bullet=hero.bullets.get(j);
+            hitEnemy(); //测试是否集中了地方坦克
 
-                if (hero.bullet != null && hero.bullet.isLive) {
-                    for (int i = 0; i < enemyTanks.size(); i++) {
-                        EnemyTank enemyTank = enemyTanks.get(i);
-                        hitTank(hero.bullet, enemyTank);
-                    }
-                }
-            }
-
+            hitHero(); //测试是否击中我的坦克
 
             this.repaint();
+        }
+    }
+
+    private void hitEnemy() {
+        for (int j = 0; j < hero.bullets.size(); j++) {
+            hero.bullet = hero.bullets.get(j);
+
+            if (hero.bullet != null && hero.bullet.isLive) {
+                for (int i = 0; i < enemyTanks.size(); i++) {
+                    EnemyTank enemyTank = enemyTanks.get(i);
+                    hitTank(hero.bullet, enemyTank);
+                }
+            }
         }
     }
 

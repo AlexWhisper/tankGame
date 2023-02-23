@@ -5,7 +5,7 @@ import java.util.Vector;
 public class Hero extends Tank { //这个是主角坦克，继承了tank类
     Bullet bullet=null;
     Vector<Bullet> bullets=new Vector<>();
-    public boolean isLive=true;
+
 
     public Hero(int x, int y) {
         super(x, y);

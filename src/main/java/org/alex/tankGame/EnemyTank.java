@@ -5,7 +5,7 @@ import java.util.Vector;
 public class EnemyTank extends Tank implements Runnable {
     Bullet bullet = null;
     Vector<Bullet> bullets = new Vector<>();
-    public boolean isLive = true;
+
 
     public EnemyTank(int x, int y) {
         super(x, y);
@@ -32,7 +32,6 @@ public class EnemyTank extends Tank implements Runnable {
                 }
                 bullets.add(bullet);
                 new Thread(bullet).start();
-
             }
 
 

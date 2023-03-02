@@ -7,8 +7,8 @@ public class Hero extends Tank { //这个是主角坦克，继承了tank类
     Vector<Bullet> bullets=new Vector<>();
 
 
-    public Hero(int x, int y) {
-        super(x, y);
+    public Hero(int x, int y,int direct) {
+        super(x, y, direct);
     }
 
     public void shotEnemy(){

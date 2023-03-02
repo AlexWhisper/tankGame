@@ -3,6 +3,7 @@ package org.alex.tankGame;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
 import java.util.Vector;
 
 @SuppressWarnings({"all"})
@@ -10,6 +11,8 @@ public class MyPanel extends Panel implements KeyListener, Runnable {
     Hero hero = null;
     Vector<EnemyTank> enemyTanks = new Vector<EnemyTank>();
     Vector<Bomb> bombs = new Vector<>();
+    Vector<Node> nodes = null;
+
     Image image1 = null;
     Image image2 = null;
     Image image3 = null;
@@ -21,30 +24,68 @@ public class MyPanel extends Panel implements KeyListener, Runnable {
     //这是我需要绘制的图片
     Image select = Toolkit.getDefaultToolkit().getImage("/bg.jpg");
 
-    public MyPanel() {
+    public MyPanel(int flag) {
+        File file = new File(Recorder.getRecordFile());
+        if (file.exists()) {
+            nodes = Recorder.getNodes();
+        } else {
+            System.out.println("文件不存在，只能开启新的游戏");
+            flag = 1;
+        }
 
-        hero = new Hero(700, 350); //创建主角坦克
+        Recorder.setEnemyTanks(enemyTanks);
+
+
+
+        hero = new Hero(700, 350,0); //创建主角坦克
         hero.setSpeed(10);
 
+        //创建敌人坦克
+        if (flag == 0)
+            for (int i = 0; i < enemySize; i++) {//创建敌人坦克
 
-        for (int i = 0; i < enemySize; i++) {//创建敌人坦克
+                EnemyTank enemytank = new EnemyTank(100 * (i + 1), 0, 0);
+                enemytank.setDirect(2);
+                enemyTanks.add(enemytank);
+                new Thread(enemytank).start();
+                enemytank.setEnemyTanks(enemyTanks);
 
-            EnemyTank enemytank = new EnemyTank(100 * (i + 1), 0);
-            enemytank.setDirect(2);
-            enemyTanks.add(enemytank);
-            new Thread(enemytank).start();
-
-//            Bullet bullet = new Bullet(enemytank.getX() + 20, enemytank.getY() + 60, enemytank.getDirect());
-//            enemytank.bullets.add(bullet);
-//            new Thread(bullet).start();
+    //            Bullet bullet = new Bullet(enemytank.getX() + 20, enemytank.getY() + 60, enemytank.getDirect());
+    //            enemytank.bullets.add(bullet);
+    //            new Thread(bullet).start();
+            }
+        else if (flag == 1) {
+            for (int i = 0; i < nodes.size(); i++) {
+                EnemyTank enemytank = new EnemyTank(nodes.get(i).getX(), nodes.get(i).getY(), nodes.get(i).getDirect());
+                enemytank.setDirect(nodes.get(i).getDirect());
+                enemyTanks.add(enemytank);
+                new Thread(enemytank).start();
+                enemytank.setEnemyTanks(enemyTanks);
+            }
         }
 
         //在构造器中初始化三张图片对象用来绘制爆炸的效果
         image1 = Toolkit.getDefaultToolkit().getImage("src/main/resources/boom2.gif");
 //        image2=Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("/bomb_2.gif"));
 //        image3=Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("/bomb_3.gif"));
+        new AePlayWave("src\\main\\java\\org\\alex\\tankGame\\111.wav").start();
 
     }
+
+    public void showInfo(Graphics g) {
+        //画出玩家的总成绩
+        g.setColor(Color.black);
+        Font font = new Font("宋体", Font.BOLD, 25);
+        g.setFont(font);
+        g.drawString("您累积击毁敌方坦克", 1020, 30);
+        drawTank(1020, 60, g, 0, 0);//画出一个敌方坦克
+        g.setColor(Color.BLACK);
+        g.drawString(Recorder.getKillEnemyNums() + "", 1080, 100);
+    }
+
+
+
+
 
     public void hitTank(Bullet b, Tank e) {
 
@@ -58,6 +99,10 @@ public class MyPanel extends Panel implements KeyListener, Runnable {
                     Bomb bomb = new Bomb(e.getX(), e.getY());
                     bombs.add(bomb);
 
+                    if ( e instanceof EnemyTank){
+                        Recorder.addKillEnemyNums();
+                    }
+
                 }
                 break;
             case 1:
@@ -68,6 +113,9 @@ public class MyPanel extends Panel implements KeyListener, Runnable {
 
                     Bomb bomb = new Bomb(e.getX(), e.getY());
                     bombs.add(bomb);
+                    if ( e instanceof EnemyTank){
+                        Recorder.addKillEnemyNums();
+                    }
                 }
                 break;
 
@@ -97,7 +145,10 @@ public class MyPanel extends Panel implements KeyListener, Runnable {
         super.paint(g);
 
 
-        g.fillRect(0, 0, 1000, 750);
+        g.fillRect(0, 0, 1000, 750);//填充矩形，默认黑色
+        g.setColor(Color.WHITE);
+        g.fillRect(1000,0,300,750);
+        showInfo(g);
         if (hero.isLive) {
             drawTank(hero.getX(), hero.getY(), g, hero.getDirect(), 0);
         }
@@ -206,7 +257,7 @@ public class MyPanel extends Panel implements KeyListener, Runnable {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        System.out.println((char) e.getKeyCode() + "键被按下");
+//        System.out.println((char) e.getKeyCode() + "键被按下");
         if (e.getKeyCode() == KeyEvent.VK_W) {
 
             hero.setDirect(0);
@@ -223,7 +274,7 @@ public class MyPanel extends Panel implements KeyListener, Runnable {
         }
 
         if (e.getKeyCode() == KeyEvent.VK_J) {
-            System.out.println("用户按下了J，开始射击");
+//            System.out.println("用户按下了J，开始射击");
 
             hero.shotEnemy();
 
@@ -276,7 +327,7 @@ public class MyPanel extends Panel implements KeyListener, Runnable {
     public void update(Graphics g) {
         if (offScreenImage == null) {
             // 截取窗体所在位置的图片 .创建一幅用于双缓冲的、可在屏幕外绘制的图像。
-            offScreenImage = this.createImage(1200, 800);
+            offScreenImage = this.createImage(1300, 950);
         }
         // 获得截取图片的画布
         Graphics gOffScreen = offScreenImage.getGraphics();

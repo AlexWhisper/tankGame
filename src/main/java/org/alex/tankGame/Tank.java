@@ -49,7 +49,7 @@ public class Tank {
         this.direct = direct;
     }
 
-    public Tank(int x, int y) {
+    public Tank(int x, int y, int direct) {
         this.x = x;
         this.y = y;
     }
